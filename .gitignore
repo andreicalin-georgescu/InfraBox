@@ -1,0 +1,23 @@
+# Terraform state
+terraform.tfstate
+terraform.tfstate.backup
+
+# Terraform variable files
+terraform.tfvars
+
+# Terraform working directory
+.terraform/
+
+# SSH keys
+*.pem
+*.key
+id_rsa*
+id_ed25519*
+
+# IDE or OS-specific
+.DS_Store
+*.swp
+*.swo
+*.bak
+.vscode/
+.idea/
