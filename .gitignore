@@ -1,3 +1,14 @@
+# Crash logs
+crash.log
+
+# Sensitive variable files
+*.auto.tfvars
+*.auto.tfvars.json
+
+# Terraform override files
+*.override.tf
+*.override.tf.json
+
 # Terraform state
 terraform.tfstate
 terraform.tfstate.backup
@@ -7,6 +18,9 @@ terraform.tfvars
 
 # Terraform working directory
 .terraform/
+
+# Local .tfplan files (Terraform plan output)
+*.tfplan
 
 # SSH keys
 *.pem
@@ -21,3 +35,6 @@ id_ed25519*
 *.bak
 .vscode/
 .idea/
+
+# Editor swap/backup files
+*~
