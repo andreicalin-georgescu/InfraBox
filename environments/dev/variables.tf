@@ -5,7 +5,7 @@ variable "name_prefix" {
 
 variable "environment" {
   type    = string
-  default = "dev"
+  default = "Dev"
 }
 
 variable "location" {
@@ -15,6 +15,14 @@ variable "location" {
 
 variable "dns_zone_name" {
   default = "infrabox-dev.com"
+}
+
+variable "admin_username" {
+  default = "azureuser"
+}
+
+variable "ssh_public_key_path" {
+  default = "~/.ssh/id_rsa_infrabox.pub"
 }
 
 variable "tags" {
