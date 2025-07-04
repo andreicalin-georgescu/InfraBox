@@ -29,3 +29,9 @@ variable "subnet_address_prefixes" {
   type        = list(string)
   default     = ["10.0.1.0/24"]
 }
+
+variable "tags" {
+  description = "Tags to apply to the networking resources"
+  type        = map(string)
+  default     = {}
+}

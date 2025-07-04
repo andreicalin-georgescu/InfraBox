@@ -3,6 +3,7 @@ resource "azurerm_virtual_network" "this" {
   address_space       = var.vnet_address_space
   location            = var.location
   resource_group_name = var.resource_group_name
+  tags                = var.tags
 }
 
 resource "azurerm_subnet" "this" {
@@ -18,12 +19,14 @@ resource "azurerm_public_ip" "this" {
   location            = var.location
   allocation_method   = "Static"
   sku                 = "Basic"
+  tags                = var.tags
 }
 
 resource "azurerm_network_interface" "this" {
   name                = "${var.name}-NIC"
   location            = var.location
   resource_group_name = var.resource_group_name
+  tags                = var.tags
 
   ip_configuration {
     name                          = "internal"
@@ -36,6 +39,7 @@ resource "azurerm_network_interface" "this" {
 resource "azurerm_dns_zone" "this" {
   name                = var.dns_zone_name
   resource_group_name = var.resource_group_name
+  tags                = var.tags
 }
 
 resource "azurerm_dns_a_record" "this" {
@@ -44,4 +48,5 @@ resource "azurerm_dns_a_record" "this" {
   resource_group_name = var.resource_group_name
   ttl                 = 300
   records             = [azurerm_public_ip.this.ip_address]
+  tags                = var.tags
 }
