@@ -1,19 +1,19 @@
 resource "azurerm_virtual_network" "this" {
-  name                = "${var.name_prefix}-VNet"
+  name                = "${var.name}-VNet"
   address_space       = var.vnet_address_space
   location            = var.location
   resource_group_name = var.resource_group_name
 }
 
 resource "azurerm_subnet" "this" {
-  name                 = "${var.name_prefix}-Subnet"
+  name                 = "${var.name}-Subnet"
   resource_group_name  = var.resource_group_name
   virtual_network_name = azurerm_virtual_network.this.name
   address_prefixes     = var.subnet_address_prefixes
 }
 
 resource "azurerm_public_ip" "this" {
-  name                = "${var.name_prefix}-PublicIP"
+  name                = "${var.name}-PublicIP"
   resource_group_name = var.resource_group_name
   location            = var.location
   allocation_method   = "Static"
@@ -21,7 +21,7 @@ resource "azurerm_public_ip" "this" {
 }
 
 resource "azurerm_network_interface" "this" {
-  name                = "${var.name_prefix}-NIC"
+  name                = "${var.name}-NIC"
   location            = var.location
   resource_group_name = var.resource_group_name
 

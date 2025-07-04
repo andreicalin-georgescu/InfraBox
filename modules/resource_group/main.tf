@@ -1,5 +1,5 @@
 resource "azurerm_resource_group" "this" {
-  name     = "${var.name_prefix}-${var.environment}-RG"
+  name     = var.name
   location = var.location
 
   tags = var.tags

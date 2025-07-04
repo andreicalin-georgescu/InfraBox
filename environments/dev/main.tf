@@ -1,14 +1,13 @@
 module "resource_group" {
-  source      = "../../modules/resource_group"
-  name_prefix = var.name_prefix
-  environment = var.environment
-  location    = var.location
-  tags        = var.tags
+  source   = "../../modules/resource_group"
+  name     = "${var.name_prefix}-${var.environment}-RG"
+  location = var.location
+  tags     = var.tags
 }
 
 module "networking" {
   source                  = "../../modules/networking"
-  name_prefix             = var.name_prefix
+  name                    = "${var.name_prefix}-${var.environment}"
   location                = var.location
   resource_group_name     = module.resource_group.resource_group_name
   dns_zone_name           = var.dns_zone_name
@@ -22,14 +21,14 @@ module "virtual_machine" {
   resource_group_name  = module.resource_group.resource_group_name
   location             = var.location
   vm_size              = "Standard_B1s"
-  admin_username       = var.admin_username
+  admin_username       = "${var.admin_username}-${var.environment}"
   ssh_public_key_path  = var.ssh_public_key_path
   network_interface_id = module.networking.network_interface_id
 }
 
 module "storage_account" {
   source                   = "../../modules/storage_account"
-  name                     = lower(replace("${var.name_prefix}SA01", "-", ""))
+  name                     = lower(replace("${var.name_prefix}-${var.environment}-SA01", "-", ""))
   resource_group_name      = module.resource_group.resource_group_name
   location                 = var.location
   account_tier             = "Standard"

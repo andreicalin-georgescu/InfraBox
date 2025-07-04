@@ -1,10 +1,5 @@
-variable "name_prefix" {
-  description = "The prefix used in naming resources"
-  type        = string
-}
-
-variable "environment" {
-  description = "The environment name (e.g., dev, test, prod)"
+variable "name" {
+  description = "The name of the resource group."
   type        = string
 }
 
