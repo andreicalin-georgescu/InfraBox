@@ -13,6 +13,10 @@ variable "location" {
   default = "westeurope"
 }
 
+variable "dns_zone_name" {
+  default = "infrabox-dev.com"
+}
+
 variable "tags" {
   type = map(string)
   default = {
