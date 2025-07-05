@@ -65,16 +65,54 @@ resource_group_name = "InfraBox-Dev-RG"
 
 ### 📁 Project Structure
 
-```yaml
-.
-├── main.tf                # Core infrastructure definitions
-├── variables.tf           # Input variable declarations
-├── outputs.tf             # Output values
-├── versions.tf            # Provider and Terraform version constraints
-├── terraform.tfvars       # Local-only variable values (ignored)
-├── README.md              # Project overview
-└── .gitignore             # Git exclusions
+```text
+## 📁 Project Structure
+
+```text
+InfraBox/
+├── environments/
+│   └── dev/                        # Development environment configuration
+│       ├── main.tf                 # References reusable modules for provisioning
+│       ├── variables.tf            # Inputs specific to the Dev environment
+│       ├── outputs.tf              # Outputs exposed after provisioning
+│       └── backend.tf              # Remote state backend config (e.g., Azure Storage)
+│
+├── modules/                        # Reusable, environment-agnostic Terraform modules
+│   ├── resource_group/
+│   │   ├── main.tf                 # Resource group creation logic
+│   │   ├── variables.tf            # Inputs like name and location
+│   │   └── outputs.tf              # Outputs like resource_group_name
+│
+│   ├── network/
+│   │   ├── main.tf                 # VNet, Subnet, Public IP, NIC, DNS Zone & A Record
+│   │   ├── variables.tf
+│   │   └── outputs.tf
+│
+│   ├── virtual_machine/
+│   │   ├── main.tf                 # Linux VM setup with SSH key auth
+│   │   ├── variables.tf
+│   │   └── outputs.tf
+│
+│   └── storage_account/
+│       ├── main.tf                 # Azure Storage account for app/data use
+│       ├── variables.tf
+│       └── outputs.tf
+│
+├── shared/
+│   └── provider.tf                 # Shared provider config (used via symlinks or duplication)
+│
+├── versions.tf                     # Defines required Terraform and provider versions
+├── .gitignore                      # Ignores .terraform/, .tfstate, secrets, etc.
+├── .gitattributes                  # Normalizes line endings across platforms
+└── README.md                       # You are here 🌍
+
 ```
+#### 📝 Notes on Best Practices Reflected:
+
+- Modules are **resource-type scoped**, keeping them reusable and scalable.
+- environments/ uses a clear separation per environment (dev, test, etc.).
+- A single provider.tf is shared via safe reuse strategies (symlink from shared into environment/ directories or duplicated in root for consistency).
+- DRY and clarity are balanced — each folder does one thing well.
 
 ### 🔒 Security
 
