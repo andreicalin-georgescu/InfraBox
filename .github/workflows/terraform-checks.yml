@@ -1,9 +1,13 @@
 name: Terraform Lint, Format and Validate
 on:
+    push:
+        branches:
+          - main
+      
     pull_request:
         paths:
-            - '**/*.tf'
-            - '**/*.tfvars'
+          - '**/*.tf'
+          - '**/*.tfvars'
 jobs:
     terraform-static-analysis:
         name: 🔍 Terraform Static Analysis
