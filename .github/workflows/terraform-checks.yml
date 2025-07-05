@@ -1,3 +1,5 @@
+# Trigger on pull requests that modify Terraform files to ensure code quality and security.
+
 name: Terraform Lint, Format and Validate
 on:   
     pull_request:
