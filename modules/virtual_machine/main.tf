@@ -1,3 +1,14 @@
+terraform {
+  required_version = ">= 1.3.0"
+
+  required_providers {
+    azurerm = {
+      source  = "hashicorp/azurerm"
+      version = "~> 3.90"
+    }
+  }
+}
+
 resource "azurerm_linux_virtual_machine" "this" {
   name                  = var.name
   resource_group_name   = var.resource_group_name

@@ -3,6 +3,9 @@ on:
     push:
         branches:
           - main
+        paths:
+          - '**/*.tf'
+          - '**/*.tfvars'
       
     pull_request:
         paths:
@@ -49,5 +52,4 @@ jobs:
           
           - name: 🔐 Run tfsec
             uses: aquasecurity/tfsec-action@v1.0.0
-            with:
-                github_token: ${{ secrets.GITHUB_TOKEN }}
+            
