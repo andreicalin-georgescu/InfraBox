@@ -1,16 +1,16 @@
 variable "name" {
-    description = "Name of the storage account"
-    type        = string
+  description = "Name of the storage account"
+  type        = string
 }
 
 variable "resource_group_name" {
-    description = "Resource group in which to create the storage account"
-    type        = string
+  description = "Resource group in which to create the storage account"
+  type        = string
 }
 
 variable "location" {
-    description = "Azure region for the storage account"
-    type        = string
+  description = "Azure region for the storage account"
+  type        = string
 }
 
 variable "account_tier" {
@@ -26,7 +26,7 @@ variable "account_replication_type" {
 }
 
 variable "tags" {
-    description = "Tags to apply to the storage account"
-    type        = map(string)
-    default     = {}
+  description = "Tags to apply to the storage account"
+  type        = map(string)
+  default     = {}
 }
