@@ -1,12 +1,5 @@
 name: Terraform Lint, Format and Validate
-on:
-    push:
-        branches:
-          - main
-        paths:
-          - '**/*.tf'
-          - '**/*.tfvars'
-      
+on:   
     pull_request:
         paths:
           - '**/*.tf'
