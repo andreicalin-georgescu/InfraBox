@@ -1,10 +1,11 @@
-from cli.utils import run_cmd, get_env_path, prompt_user_confirmation, has_changes
+from cli.utils import get_env_path, prompt_user_confirmation
+from cli.terraform_utils import terraform_init, terraform_validate, terraform_state_has_changes, terraform_apply
 
 def run(args):
     env_path = get_env_path(args.environment)
 
-    run_cmd(["terraform", "init", "-input=false"], cwd=env_path, dry_run=args.dry_run)
-    run_cmd(["terraform", "validate"], cwd=env_path, dry_run=args.dry_run)
+    terraform_init(env_path, dry_run=args.dry_run)
+    terraform_validate(env_path, dry_run=args.dry_run)
 
-    if has_changes(env_path, destroy=True, dry_run=args.dry_run) and prompt_user_confirmation():
-        run_cmd(["terraform", "destroy", "-auto-approve"], cwd=env_path, capture_output=False)
+    if terraform_state_has_changes(env_path, destroy=True, dry_run=args.dry_run) and prompt_user_confirmation():
+        terraform_apply(env_path, destroy=True, dry_run=args.dry_run)
