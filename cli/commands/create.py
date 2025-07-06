@@ -7,5 +7,5 @@ def run(args):
     run_cmd(["terraform", "validate"], cwd=env_path, dry_run=args.dry_run)
 
     if has_changes(env_path, dry_run=args.dry_run) and prompt_user_confirmation():
-        run_cmd(["terraform", "apply", "-auto-approve"], cwd=env_path)
+        run_cmd(["terraform", "apply", "-auto-approve"], cwd=env_path, capture_output=False)
 

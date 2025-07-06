@@ -15,14 +15,15 @@ def get_env_path(env):
     validate_environment(env)
     return os.path.join(ENVIRONMENTS_DIR, env)
 
-def run_cmd(cmd, cwd, dry_run=False):
+def run_cmd(cmd, cwd, dry_run=False, capture_output=True):
     print(f"\nINFRABOX: 📦 Running command: {' '.join(cmd)} in {cwd}")
     if dry_run:
         print("INFRABOX: 🔍 Dry-run mode: command not executed.")
         return
 
-    result = subprocess.run(cmd, cwd=cwd, capture_output=True, text=True, shell=False)
-    print(result.stdout)
+    result = subprocess.run(cmd, cwd=cwd, capture_output=capture_output, text=True, shell=False)
+    if capture_output:
+        print(result.stdout)
     if result.stderr:
         print(result.stderr, file=sys.stderr)
     if result.returncode != 0:
