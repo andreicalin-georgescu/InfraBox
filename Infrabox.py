@@ -9,7 +9,7 @@ def main():
     elif args.command == "destroy":
         destroy.run(args)
     else:
-        print("Unsupported command.")
+        print("INFRABOX: ❌ Unsupported command.")
 
 if __name__ == "__main__":
     main()
