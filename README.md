@@ -115,14 +115,14 @@ python3 InfraBox.py --help
 ```
 
 #### 📄 Create a terraform.tfvars file
-Add the following to a file called terraform.tfvars (*already added to .gitignore*):
+Add the following to a file called `terraform.tfvars` (*already added to .gitignore*):
 
 ```hcl
 ssh_public_key_path = "~/.ssh/infrabox_key.pub"
 dns_zone_name       = "example.com"
 resource_group_name = "InfraBox-Dev-RG"
 ```
-Infrabox can be used with native terraform from each of the environments/ sub-directory, or by using the InfraBox CLI wrapper.
+Infrabox can be used with native terraform from each of the `environments/` sub-directory, or by using the InfraBox CLI wrapper.
 
 ### 🧰 Makefile Commands
 
@@ -144,10 +144,10 @@ InfraBox comes with a secure, extensible Python CLI that abstracts Terraform com
 python3 InfraBox.py create dev
 ```
 
-- This will validate the target environment
-- Run terraform plan
+- This will validate the target environment by running `terraform validate`
+- Run `terraform plan`
 - Ask for confirmation before applying changes
-- Skips apply if no changes are detected
+- Skips `terraform apply` if no changes are detected
 - Output environment details once provisioned
 
 #### 🧨 Destroy an environment
@@ -155,9 +155,9 @@ python3 InfraBox.py create dev
 python3 InfraBox.py destroy dev
 ```
 - Validates the environment
-- Runs terraform plan -destroy
+- Runs `terraform plan -destroy`
 - Asks for confirmation before applying
-- Skips apply -destroy if no changes are required
+- Skips `terraform apply -destroy` if no changes are required
 
 #### 🧪 Dry-run mode
 To preview what InfraBox would do without making changes:
@@ -179,9 +179,9 @@ InfraBox includes CI workflows for:
 - ✅ Terraform linting, formatting, and validation (.tf, .tfvars)
 - ✅ Static analysis using tflint and tfsec
 - ✅ Required checks enforced before merging to main
-- ✅ Uses *black* auto-formatting for consistent standards in pre-commit and CI
-- ✅ Uses *ruff* linting for optimized code quality checks in pre-commit and CI
-- ✅ Uses *bandit* static analysis for security analysis in pre-commit and CI
+- ✅ Uses `black` auto-formatting for consistent standards in pre-commit and CI
+- ✅ Uses `ruff` linting for optimized code quality checks in pre-commit and CI
+- ✅ Uses `bandit` static analysis for security analysis in pre-commit and CI
 
 ### 📌 DevSecOps Best Practices Followed
 
