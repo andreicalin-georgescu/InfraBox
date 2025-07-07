@@ -25,15 +25,14 @@ def run_cmd(cmd, cwd, dry_run=False, capture_output=True):
 
     # subprocess call is safe — shell=False and cmd is a validated list
 
-    # nosec: B603
     result = subprocess.run(
         cmd,
         cwd=cwd,
         capture_output=capture_output,
         text=True,
         shell=False,
-        check=False,  # nosec B603
-    )
+        check=False,
+    )  # nosec: B603
     if capture_output:
         print(result.stdout)
     return result

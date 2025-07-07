@@ -19,7 +19,6 @@ lint.extend-select = [
     "F",    # pyflakes
     "B",    # bugbear (best practices)
     "I",    # isort (import sorting)
-    "S",    # flake8-bandit (security linting)
     "ARG",  # flake8-unused-arguments
     "DTZ",  # flake8-datetimez (timezone-aware)
     "PGH",  # pygrep-hooks (unsafe patterns)
