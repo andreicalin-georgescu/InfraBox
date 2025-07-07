@@ -1,14 +1,3 @@
-terraform {
-  required_version = ">= 1.3.0"
-
-  required_providers {
-    azurerm = {
-      source  = "hashicorp/azurerm"
-      version = "~> 3.90"
-    }
-  }
-}
-
 module "resource_group" {
   source   = "../../modules/resource_group"
   name     = "${var.name_prefix}-${var.environment}-RG"

@@ -1,6 +1,17 @@
 # Crash logs
 crash.log
 
+# Python cache files
+__pycache__/
+*.py[cod]
+
+# Virtual environment directories
+venv/
+.env
+
+# Ruff cache
+.ruff_cache/
+
 # Sensitive variable files
 *.auto.tfvars
 *.auto.tfvars.json

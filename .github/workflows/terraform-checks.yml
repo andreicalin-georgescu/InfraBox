@@ -1,9 +1,17 @@
-name: Terraform Lint, Format and Validate
-on:   
-    pull_request:
-        paths:
-          - '**/*.tf'
-          - '**/*.tfvars'
+name: 🌍 Terraform Lint, Format and Validate
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '**/*.tf'
+      - '**/*.tfvars'
+      - '.github/workflows/terraform-validate.yml'
+
+permissions:
+  contents: read
+  pull-requests: read
+
 jobs:
     terraform-static-analysis:
         name: 🔍 Terraform Static Analysis

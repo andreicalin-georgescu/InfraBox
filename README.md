@@ -1,12 +1,62 @@
-# 🧰 InfraBox - DevOps Infrastructure Bootstrapper
+# 🚀 InfraBox - DevOps Infrastructure Bootstrapper
 
-**InfraBox** is an open-source infrastructure-as-code project that provides a reusable Terraform baseline for setting up cloud environments using best practices. It is designed for DevOps engineers who want to quickly bootstrap clean, consistent environments — starting with Azure and expanding to other platforms.
+![GitHub Workflow Status](https://github.com/andreicalin-georgescu/InfraBox/actions/workflows/python-cli-checks.yml/badge.svg)
+![Terraform Validate](https://github.com/andreicalin-georgescu/InfraBox/actions/workflows/terraform-checks.yml/badge.svg)
+![License](https://img.shields.io/github/license/andreicalin-georgescu/InfraBox)
 
-## 🌍 Project Goals
 
-- Provide an **end-to-end template** for deploying modern infrastructure using Terraform
-- Serve as a **learning platform** for DevOps engineers to practice real-world provisioning
-- Make it easy to expand to **Test, Stage, and Prod environments** by following a naming convention
+**InfraBox** is a secure, modular, and reusable infrastructure-as-code boilerplate using **Terraform on Azure**. It is designed to make provisioning cloud infrastructure fast, predictable, and accessible — especially for teams and developers who want to spin up fully working environments with minimal friction.
+
+## 📦 Project Goals
+
+- 🛠️ Modular, scalable, and DRY Terraform code
+- 🔐 Strong DevSecOps and input validation principles
+- ⚙️ CLI wrapper for simplified provisioning and teardown
+- 🧪 Integrated with GitHub Actions for linting, validation and security scanning
+- 🧰 Support for multiple environments (e.g., `dev`, `test`, `prod`)
+
+## 📁 Project Structure
+
+```bash
+InfraBox/
+│
+├── environments/
+│   └── dev/                  # Example environment
+│       ├── main.tf
+│       ├── variables.tf
+│       ├── terraform.tfvars
+│       └── backend.tf
+│
+├── modules/
+│   ├── networking/
+│   ├── virtual_machine/
+│   ├── storage_account/
+│   └── resource_group/
+│
+├── shared/
+│   └── provider.tf           # Common provider configuration
+│
+├── cli/                      # Python CLI wrapper logic
+│   ├── __init__.py
+│   ├── parser.py             # Argument parser
+│   ├── utils.py              # Secure command runner, path validation
+│   ├── terraform_utils.py    # Terraform-specific wrappers
+│   └── commands/
+│       ├── __init__.py
+│       ├── create.py         # Implements 'create' command
+│       └── destroy.py        # Implements 'destroy' command
+│
+├── InfraBox.py               # Entry point for the CLI
+├── .github/
+│   └── workflows/            # GitHub Actions for linting, security, smoke tests
+│
+├── .gitignore
+├── .pre-commit-config.yaml   # Pre-commit hook definitions
+├── README.md
+├── Makefile                  # Common development tasks
+├── pyproject.toml            # Configuration for formatters/lint tools
+└── requirements.txt          # Python project dependencies
+```
 
 ## 🧱 Provisioned Resources
 
@@ -26,103 +76,168 @@ InfraBox-\<Environment\>-\<ResourceType\>
 Example: `InfraBox-Dev-VM`, `InfraBox-Dev-PublicIP`, etc.  
 This allows for easy scaling across environments like *Test*, *Stage*, and *Prod*.
 
-
 ## ⚙️ Getting Started
 
 ### 🔧 Prerequisites
 
 - [Terraform CLI](https://developer.hashicorp.com/terraform/downloads)
+- Python 3.9+
 - Azure CLI (logged in and configured)
 - RSA SSH key (required for VM access)
 - A registered domain in Azure DNS (optional for DNS record)
+- virtualenv (recommended for encapsulation of future project dependencies)
 
 ### 📂 Setup Instructions
 
+#### 🗂️ Clone Repository Structure
+
 ```bash
 git clone https://github.com/<your-username>/infrabox.git && cd infrabox
+```
 
-# Create RSA SSH key (if needed)
+#### 🔑 Create RSA SSH key (if needed)
+```bash
 ssh-keygen -t rsa -b 4096 -f ~/.ssh/infrabox_key
+```
+#### 🐍 Install Python dependencies
+```bash
+pip3 install -r requirements.txt
+```
 
-# Initialize Terraform
-terraform init
+#### 🔧 Install pre-commit hooks
+``` bash
+pre-commit install
+```
 
-# Preview changes
-terraform plan
-
-# Apply infrastructure
-terraform apply
+#### 🧰 View available CLI options
+```bash
+python3 InfraBox.py --help
 ```
 
 #### 📄 Create a terraform.tfvars file
-Add the following to a file called terraform.tfvars (DO NOT COMMIT THIS FILE):
+Add the following to a file called `terraform.tfvars` (*already added to .gitignore*):
 
 ```hcl
 ssh_public_key_path = "~/.ssh/infrabox_key.pub"
 dns_zone_name       = "example.com"
 resource_group_name = "InfraBox-Dev-RG"
 ```
+Infrabox can be used with native terraform from each of the `environments/` sub-directory, or by using the InfraBox CLI wrapper.
 
-### 📁 Project Structure
+### 🧰 Makefile Commands
 
-```text
-## 📁 Project Structure
-
-```text
-InfraBox/
-├── environments/
-│   └── dev/                        # Development environment configuration
-│       ├── main.tf                 # References reusable modules for provisioning
-│       ├── variables.tf            # Inputs specific to the Dev environment
-│       ├── outputs.tf              # Outputs exposed after provisioning
-│       └── backend.tf              # Remote state backend config (e.g., Azure Storage)
-│
-├── modules/                        # Reusable, environment-agnostic Terraform modules
-│   ├── resource_group/
-│   │   ├── main.tf                 # Resource group creation logic
-│   │   ├── variables.tf            # Inputs like name and location
-│   │   └── outputs.tf              # Outputs like resource_group_name
-│
-│   ├── network/
-│   │   ├── main.tf                 # VNet, Subnet, Public IP, NIC, DNS Zone & A Record
-│   │   ├── variables.tf
-│   │   └── outputs.tf
-│
-│   ├── virtual_machine/
-│   │   ├── main.tf                 # Linux VM setup with SSH key auth
-│   │   ├── variables.tf
-│   │   └── outputs.tf
-│
-│   └── storage_account/
-│       ├── main.tf                 # Azure Storage account for app/data use
-│       ├── variables.tf
-│       └── outputs.tf
-│
-├── shared/
-│   └── provider.tf                 # Shared provider config (used via symlinks or duplication)
-│
-├── versions.tf                     # Defines required Terraform and provider versions
-├── .gitignore                      # Ignores .terraform/, .tfstate, secrets, etc.
-├── .gitattributes                  # Normalizes line endings across platforms
-└── README.md                       # You are here 🌍
-
+Use the Makefile to streamline common dev workflows:
+```bash
+make help            # Show all available commands
+make setup           # Setup pre-commit and install dependencies
+make lint            # Run ruff for linting
+make format          # Auto-format Python files with black
+make security        # Run security analysis (bandit)
 ```
-#### 📝 Notes on Best Practices Reflected:
+
+### 🧑‍💻 Using the CLI
+
+InfraBox comes with a secure, extensible Python CLI that abstracts Terraform commands.
+
+#### 🔨 Create an environment
+``` bash
+python3 InfraBox.py create dev
+```
+
+- This will validate the target environment by running `terraform validate`
+- Run `terraform plan`
+- Ask for confirmation before applying changes
+- Skips `terraform apply` if no changes are detected
+- Output environment details once provisioned
+
+#### 🧨 Destroy an environment
+``` bash
+python3 InfraBox.py destroy dev
+```
+- Validates the environment
+- Runs `terraform plan -destroy`
+- Asks for confirmation before applying
+- Skips `terraform apply -destroy` if no changes are required
+
+#### 🧪 Dry-run mode
+To preview what InfraBox would do without making changes:
+
+```bash
+python3 InfraBox.py create dev --dry-run
+```
+
+### 🛡️ Security Considerations
+
+- All CLI commands are validated for path traversal and injection
+- Sensitive output (Terraform secrets, tokens) is never printed
+- All subprocesses use safe execution patterns
+
+### 🤖 Standardization through Pre-commits and GitHub Actions
+
+InfraBox includes CI workflows for:
+
+- ✅ Terraform linting, formatting, and validation (.tf, .tfvars)
+- ✅ Static analysis using tflint and tfsec
+- ✅ Required checks enforced before merging to main
+- ✅ Uses `black` auto-formatting for consistent standards in pre-commit and CI
+- ✅ Uses `ruff` linting for optimized code quality checks in pre-commit and CI
+- ✅ Uses `bandit` static analysis for security analysis in pre-commit and CI
+
+### 📌 DevSecOps Best Practices Followed
+
+- ✅ Shift-left security with early validation
+- ✅ Separation of config, code, and secrets
+- ✅ Secure CLI with strict input handling
+- ✅ Continuous security scanning via GitHub Actions
+- ✅ Explicit terraform.required_version and provider constraints
+
+### 👨‍💻 Pre-Commit Hooks
+
+To maintain a clean and secure codebase, InfraBox uses *pre-commit* to enforce standards before code is committed:
+
+#### 🔌 Included Hooks
+- black: Formats Python files
+- ruff: Linting and formatting consistency
+- bandit: Checks for Python security risks
+
+#### 🔧 Setup
+Install pre-commit if you haven't already:
+```bash
+pip3 install pre-commit
+```
+Enable hooks:
+```bash
+pre-commit install
+```
+
+Run manually (optional):
+```bash
+pre-commit run --all-files
+```
+
+### 📝 Notes on Coding Best Practices Reflected:
 
 - Modules are **resource-type scoped**, keeping them reusable and scalable.
 - environments/ uses a clear separation per environment (dev, test, etc.).
 - A single provider.tf is shared via safe reuse strategies (symlink from shared into environment/ directories or duplicated in root for consistency).
 - DRY and clarity are balanced — each folder does one thing well.
 
-### 🔒 Security
+### 🔄 Roadmap
 
-No secrets, passwords, or tokens should be hardcoded.
-All sensitive values must go in terraform.tfvars (gitignored)
-.terraform and state files are never committed.
+ - Add environment-specific SSH key pair generation and management
+ - Extend CLI to support selective module provisioning
+ - Add support for multiple cloud providers (future)
+ - Add wrapper output renderer for non-technical users
+ - Auto-generate documentation from modules
 
 ### 🤝 Contributions
 
-Open to issues and pull requests! Future goals include:
+If interested in contributing, please make sure to:
+- Use *make setup* before your first commit
+- Commit only code that passes all pre-commit hooks
+- Create PRs against main with clear descriptions
+
+**Open to issues and pull requests!** Future goals include:
 
 - Modular environment support
 - Integration with CI/CD pipelines
