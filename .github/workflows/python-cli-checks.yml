@@ -31,13 +31,12 @@ jobs:
         run: |
           pip install --upgrade pip
           pip install -r requirements.txt
-          pip install black flake8 bandit
 
       - name: 🎨 Code formatting check (black)
         run: black --check --diff infrabox.py cli/
 
-      - name: 🔍 Linting (flake8)
-        run: flake8 infrabox.py cli/
+      - name: 🧼 Linting (ruff)
+        run: ruff check InfraBox.py cli/
 
       - name: 🛡️ Security scan (bandit)
         run: bandit -r infrabox.py cli/

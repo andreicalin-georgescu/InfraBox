@@ -1,16 +1,26 @@
 from cli.utils import run_cmd
 
+
 def terraform_init(env_path, dry_run=False):
     """
     Initialize the Terraform environment.
     """
-    return run_cmd(["terraform", "init", "-input=false"], cwd=env_path, dry_run=dry_run, capture_output=True)
+    return run_cmd(
+        ["terraform", "init", "-input=false"],
+        cwd=env_path,
+        dry_run=dry_run,
+        capture_output=True,
+    )
+
 
 def terraform_validate(env_path, dry_run=False):
     """
     Validate the Terraform configuration.
     """
-    return run_cmd(["terraform", "validate"], cwd=env_path, dry_run=dry_run, capture_output=True)
+    return run_cmd(
+        ["terraform", "validate"], cwd=env_path, dry_run=dry_run, capture_output=True
+    )
+
 
 def terraform_plan(env_path, destroy=False, dry_run=False):
     """
@@ -20,6 +30,7 @@ def terraform_plan(env_path, destroy=False, dry_run=False):
     if destroy:
         cmd.append("-destroy")
     return run_cmd(cmd, cwd=env_path, dry_run=dry_run, capture_output=False)
+
 
 def terraform_state_has_changes(env_path, destroy=False, dry_run=False):
     """
@@ -43,6 +54,7 @@ def terraform_state_has_changes(env_path, destroy=False, dry_run=False):
     else:
         print("INFRABOX: ❌ Error occurred while checking for changes.")
         return False
+
 
 def terraform_apply(env_path, destroy=False, dry_run=False):
     """
