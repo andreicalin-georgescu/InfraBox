@@ -5,7 +5,7 @@ on:
     branches: [main]
     paths:
       - 'cli/**.py'
-      - 'InfraBox.py'
+      - 'infrabox.py'
       - 'requirements.txt'
       - '.github/workflows/python-cli-checks.yml'
 
@@ -34,13 +34,13 @@ jobs:
           pip install black flake8 bandit
 
       - name: 🎨 Code formatting check (black)
-        run: black --check --diff InfraBox.py cli/
+        run: black --check --diff infrabox.py cli/
 
       - name: 🔍 Linting (flake8)
-        run: flake8 InfraBox.py cli/
+        run: flake8 infrabox.py cli/
 
       - name: 🛡️ Security scan (bandit)
-        run: bandit -r InfraBox.py cli/
+        run: bandit -r infrabox.py cli/
 
   cli-smoke-tests:
     name: 🧪 CLI Smoke Tests
@@ -62,11 +62,11 @@ jobs:
           pip install -r requirements.txt
 
       - name: ⚙️ Run CLI help command
-        run: python InfraBox.py --help
+        run: python infrabox.py --help
 
       - name: 🧪 Dry-run example
-        run: python InfraBox.py create dev --dry-run
+        run: python infrabox.py create dev --dry-run
 
       - name: ❌ Invalid env test (should fail safely)
         run: |
-          python InfraBox.py create ../../evil --dry-run || echo "Handled invalid input safely"
+          python infrabox.py create ../../evil --dry-run || echo "Handled invalid input safely"
