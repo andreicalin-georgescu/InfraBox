@@ -1,12 +1,58 @@
-# 🧰 InfraBox - DevOps Infrastructure Bootstrapper
+# 🚀 InfraBox - DevOps Infrastructure Bootstrapper
 
-**InfraBox** is an open-source infrastructure-as-code project that provides a reusable Terraform baseline for setting up cloud environments using best practices. It is designed for DevOps engineers who want to quickly bootstrap clean, consistent environments — starting with Azure and expanding to other platforms.
+**InfraBox** is a secure, modular, and reusable infrastructure-as-code boilerplate using **Terraform on Azure**. It is designed to make provisioning cloud infrastructure fast, predictable, and accessible — especially for teams and developers who want to spin up fully working environments with minimal friction.
 
-## 🌍 Project Goals
+---
 
-- Provide an **end-to-end template** for deploying modern infrastructure using Terraform
-- Serve as a **learning platform** for DevOps engineers to practice real-world provisioning
-- Make it easy to expand to **Test, Stage, and Prod environments** by following a naming convention
+## 📦 Project Goals
+
+- 🛠️ Modular, scalable, and DRY Terraform code
+- 🔐 Strong DevSecOps and input validation principles
+- ⚙️ CLI wrapper for simplified provisioning and teardown
+- 🧪 Integrated with GitHub Actions for linting, validation and security scanning
+- 🧰 Support for multiple environments (e.g., `dev`, `test`, `prod`)
+
+---
+
+## 📁 Project Structure
+
+```bash
+InfraBox/
+│
+├── environments/
+│   └── dev/                  # Example environment
+│       ├── main.tf
+│       ├── variables.tf
+│       ├── terraform.tfvars
+│       └── backend.tf
+│
+├── modules/
+│   ├── networking/
+│   ├── virtual_machine/
+│   ├── storage_account/
+│   └── resource_group/
+│
+├── shared/
+│   └── provider.tf           # Common provider configuration
+│
+├── cli/                      # Python CLI wrapper logic
+│   ├── __init__.py
+│   ├── parser.py             # Argument parser
+│   ├── utils.py              # Secure command runner, path validation
+│   ├── terraform_utils.py    # Terraform-specific wrappers
+│   └── commands/
+│       ├── __init__.py
+│       ├── create.py         # Implements 'create' command
+│       └── destroy.py        # Implements 'destroy' command
+│
+├── InfraBox.py               # Entry point for the CLI
+├── .github/
+│   └── workflows/            # GitHub Actions for linting, security, smoke tests
+│
+├── .gitignore
+├── README.md
+└── requirements.txt
+```
 
 ## 🧱 Provisioned Resources
 
@@ -32,9 +78,16 @@ This allows for easy scaling across environments like *Test*, *Stage*, and *Prod
 ### 🔧 Prerequisites
 
 - [Terraform CLI](https://developer.hashicorp.com/terraform/downloads)
+- Python 3.8+
 - Azure CLI (logged in and configured)
 - RSA SSH key (required for VM access)
 - A registered domain in Azure DNS (optional for DNS record)
+- virtualenv (recommended for encapsulation of future project dependencies)
+
+#### 🔧 Install Python Requirements
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
 
 ### 📂 Setup Instructions
 
@@ -62,63 +115,75 @@ ssh_public_key_path = "~/.ssh/infrabox_key.pub"
 dns_zone_name       = "example.com"
 resource_group_name = "InfraBox-Dev-RG"
 ```
+Infrabox can be used with native terraform from each of the environments directory, or using the InfraBox CLI wrapper.
 
-### 📁 Project Structure
+### 🧑‍💻 Using the CLI
 
-```text
-## 📁 Project Structure
+InfraBox comes with a secure, extensible Python CLI that abstracts Terraform commands.
 
-```text
-InfraBox/
-├── environments/
-│   └── dev/                        # Development environment configuration
-│       ├── main.tf                 # References reusable modules for provisioning
-│       ├── variables.tf            # Inputs specific to the Dev environment
-│       ├── outputs.tf              # Outputs exposed after provisioning
-│       └── backend.tf              # Remote state backend config (e.g., Azure Storage)
-│
-├── modules/                        # Reusable, environment-agnostic Terraform modules
-│   ├── resource_group/
-│   │   ├── main.tf                 # Resource group creation logic
-│   │   ├── variables.tf            # Inputs like name and location
-│   │   └── outputs.tf              # Outputs like resource_group_name
-│
-│   ├── network/
-│   │   ├── main.tf                 # VNet, Subnet, Public IP, NIC, DNS Zone & A Record
-│   │   ├── variables.tf
-│   │   └── outputs.tf
-│
-│   ├── virtual_machine/
-│   │   ├── main.tf                 # Linux VM setup with SSH key auth
-│   │   ├── variables.tf
-│   │   └── outputs.tf
-│
-│   └── storage_account/
-│       ├── main.tf                 # Azure Storage account for app/data use
-│       ├── variables.tf
-│       └── outputs.tf
-│
-├── shared/
-│   └── provider.tf                 # Shared provider config (used via symlinks or duplication)
-│
-├── versions.tf                     # Defines required Terraform and provider versions
-├── .gitignore                      # Ignores .terraform/, .tfstate, secrets, etc.
-├── .gitattributes                  # Normalizes line endings across platforms
-└── README.md                       # You are here 🌍
-
+#### 🔨 Create an environment
+``` bash
+python InfraBox.py create dev
 ```
-#### 📝 Notes on Best Practices Reflected:
+
+- This will validate the target environment
+- Run terraform plan
+- Ask for confirmation before applying changes
+- Skips apply if no changes are detected
+- Output environment details once provisioned
+
+#### 🧨 Destroy an environment
+``` bash
+python InfraBox.py destroy dev
+```
+- Validates the environment
+- Runs terraform plan -destroy
+- Asks for confirmation before applying
+- Skips apply -destroy if no changes are required
+
+#### 🧪 Dry-run mode
+To preview what InfraBox would do without making changes:
+
+```bash
+python InfraBox.py create dev --dry-run
+```
+
+### 🛡️ Security Considerations
+
+- All CLI commands are validated for path traversal and injection
+- Sensitive output (Terraform secrets, tokens) is never printed
+- All subprocesses use safe execution patterns
+
+### 🤖 GitHub Actions
+
+InfraBox includes CI workflows for:
+
+- ✅ Terraform linting, formatting, and validation (.tf, .tfvars)
+- ✅ Static analysis using tflint and tfsec
+- ✅ Required checks enforced before merging to main
+
+### 📌 DevSecOps Best Practices Followed
+
+- ✅ Shift-left security with early validation
+- ✅ Separation of config, code, and secrets
+- ✅ Secure CLI with strict input handling
+- ✅ Continuous security scanning via GitHub Actions
+- ✅ Explicit terraform.required_version and provider constraints
+
+🔄 Roadmap
+
+ - Add environment-specific SSH key pair generation and management
+ - Extend CLI to support selective module provisioning
+ - Add support for multiple cloud providers (future)
+ - Add wrapper output renderer for non-technical users
+ - Auto-generate documentation from modules
+
+#### 📝 Notes on Coding Best Practices Reflected:
 
 - Modules are **resource-type scoped**, keeping them reusable and scalable.
 - environments/ uses a clear separation per environment (dev, test, etc.).
 - A single provider.tf is shared via safe reuse strategies (symlink from shared into environment/ directories or duplicated in root for consistency).
 - DRY and clarity are balanced — each folder does one thing well.
-
-### 🔒 Security
-
-No secrets, passwords, or tokens should be hardcoded.
-All sensitive values must go in terraform.tfvars (gitignored)
-.terraform and state files are never committed.
 
 ### 🤝 Contributions
 
