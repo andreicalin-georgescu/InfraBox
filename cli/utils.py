@@ -23,6 +23,9 @@ def run_cmd(cmd, cwd, dry_run=False, capture_output=True):
         print("INFRABOX: 🔍 Dry-run mode: command not executed.")
         return
 
+    # subprocess call is safe — shell=False and cmd is a validated list
+
+    # nosec: B603
     result = subprocess.run(
         cmd,
         cwd=cwd,

@@ -1,5 +1,8 @@
 from cli.utils import run_cmd
 
+TERRAFORM_NO_CHANGES_DETECTED_CODE = 0
+TERRAFORM_CHANGES_DETECTED_CODE = 2
+
 
 def terraform_init(env_path, dry_run=False):
     """
@@ -45,10 +48,10 @@ def terraform_state_has_changes(env_path, destroy=False, dry_run=False):
             cmd.append("-destroy")
         run_cmd(cmd, cwd=env_path, dry_run=True, capture_output=False)
         return False
-    if result.returncode == 0:
+    if result.returncode == TERRAFORM_NO_CHANGES_DETECTED_CODE:
         print("INFRABOX: ✅ No changes detected.")
         return False
-    elif result.returncode == 2:
+    elif result.returncode == TERRAFORM_CHANGES_DETECTED_CODE:
         print("INFRABOX: ⚠️ Changes detected.")
         return True
     else:
