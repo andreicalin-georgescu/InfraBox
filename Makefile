@@ -1,6 +1,19 @@
 # Makefile
 
-.PHONY: setup format lint security pre-commit-all
+.PHONY: help setup format lint security pre-commit-all
+
+# Show help for each target
+help:
+	@echo ""
+	@echo "InfraBox Makefile Commands:"
+	@echo "---------------------------"
+	@echo "setup           Install Python tools and Git pre-commit hooks"
+	@echo "format          Format code using Black"
+	@echo "lint            Run static code analysis using Ruff"
+	@echo "security        Scan for security issues using Bandit"
+	@echo "check           Run format, lint, and security checks (all-in-one)"
+	@echo "pre-commit-all  Run all configured pre-commit hooks across the codebase"
+	@echo ""
 
 # Setup Python tools and Git pre-commit hooks
 setup:
