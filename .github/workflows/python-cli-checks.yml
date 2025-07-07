@@ -29,11 +29,9 @@ jobs:
 
       - name: 📦 Install dependencies
         run: |
-          python -m venv .venv
-          source .venv/bin/activate
           pip install --upgrade pip
           pip install -r requirements.txt
-          pip install flake8 black bandit
+          pip install black flake8 bandit
 
       - name: 🎨 Code formatting check (black)
         run: black --check --diff InfraBox.py cli/
@@ -60,21 +58,15 @@ jobs:
 
       - name: 📦 Install dependencies
         run: |
-          python -m venv .venv
-          source .venv/bin/activate
+          pip install --upgrade pip
           pip install -r requirements.txt
 
       - name: ⚙️ Run CLI help command
-        run: |
-          source .venv/bin/activate
-          python InfraBox.py --help
+        run: python InfraBox.py --help
 
       - name: 🧪 Dry-run example
-        run: |
-          source .venv/bin/activate
-          python InfraBox.py create dev --dry-run
+        run: python InfraBox.py create dev --dry-run
 
       - name: ❌ Invalid env test (should fail safely)
         run: |
-          source .venv/bin/activate
           python InfraBox.py create ../../evil --dry-run || echo "Handled invalid input safely"
