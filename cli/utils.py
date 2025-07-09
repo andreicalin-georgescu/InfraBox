@@ -1,4 +1,5 @@
 import os
+import sys
 import subprocess  # nosec B404
 from pathlib import Path
 
@@ -13,9 +14,18 @@ def validate_environment(env, allow_new=False):
 
 
 def get_env_path(env):
-    """Get the path to the specified environment directory."""
+    """Get the path to the specified environment directory. Abort if it doesn't exist."""
     validate_environment(env)
-    return os.path.join(ENVIRONMENTS_DIR, env)
+    env_path = os.path.join(ENVIRONMENTS_DIR, env)
+
+    if not os.path.exists(env_path):
+        print(f"INFRABOX: ❌ Environment directory '{env}' does not exist.")
+        print(
+            f"INFRABOX: 💡 You may need to run: `infrabox.py initialize {env}` first."
+        )
+        sys.exit(1)
+
+    return env_path
 
 
 def run_cmd(cmd, cwd, dry_run=False, capture_output=True):
