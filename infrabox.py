@@ -1,6 +1,6 @@
 # CLI entry point for InfraBox
 
-from cli.commands import create, destroy
+from cli.commands import create, destroy, initialize
 from cli.parser import parse_arguments
 
 
@@ -11,6 +11,8 @@ def main():
         create.run(args)
     elif args.command == "destroy":
         destroy.run(args)
+    elif args.command == "initialize":
+        initialize.run(args)
     else:
         print("INFRABOX: ❌ Unsupported command.")
 

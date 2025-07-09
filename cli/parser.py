@@ -23,4 +23,19 @@ def parse_arguments():
     )
     destroy_parser.add_argument("--dry-run", action="store_true", help="Dry run only")
 
+    # Init
+    initialize_parser = subparsers.add_parser(
+        "initialize", help="Initialize a new environment"
+    )
+    initialize_parser.add_argument(
+        "environment",
+        choices=["dev", "stage", "prod"],
+        nargs="?",
+        default="dev",
+        help="Target environment (default: dev)",
+    )
+    initialize_parser.add_argument(
+        "--dry-run", action="store_true", help="Dry run only"
+    )
+
     return parser.parse_args()

@@ -7,17 +7,19 @@ INFRA_ROOT = Path(__file__).resolve().parent.parent
 ENVIRONMENTS_DIR = INFRA_ROOT / "environments"
 
 
-def validate_environment(env):
-    if env not in VALID_ENVIRONMENTS:
+def validate_environment(env, allow_new=False):
+    if not allow_new and env not in VALID_ENVIRONMENTS:
         raise ValueError(f"Invalid environment: {env}")
 
 
 def get_env_path(env):
+    """Get the path to the specified environment directory."""
     validate_environment(env)
     return os.path.join(ENVIRONMENTS_DIR, env)
 
 
 def run_cmd(cmd, cwd, dry_run=False, capture_output=True):
+    """Run a command in a specified directory."""
     print(f"\nINFRABOX: 📦 Running command: {' '.join(cmd)} in {cwd}")
     if dry_run:
         print("INFRABOX: 🔍 Dry-run mode: command not executed.")
@@ -38,13 +40,21 @@ def run_cmd(cmd, cwd, dry_run=False, capture_output=True):
     return result
 
 
-def prompt_user_confirmation():
-    confirm = (
-        input("INFRABOX: ⚠️  Proceed with 'terraform apply'? (y/N): ").strip().lower()
-    )
-    if confirm == "y":
-        print("INFRABOX: ✅ Proceeding with apply.")
-        return True
-    else:
-        print("INFRABOX: ❌ Operation cancelled.")
-        return False
+def prompt_user_confirmation(message="INFRABOX: Proceed?", default=False):
+    """Prompt the user for confirmation with a default option."""
+    suffix = "[Y/n]" if default else "[y/N]"
+    answer = input(f"{message} {suffix}: ").strip().lower()
+    if not answer:
+        return default
+    return answer in ("y", "yes")
+
+
+def prompt_input(prompt, default=""):
+    """Ask user for input with a default fallback."""
+    response = input(f"{prompt} [{default}]: ").strip()
+    return response or default
+
+
+def sanitize_env_name(name):
+    """Return a safe environment name (alphanumeric, dashes, underscores)."""
+    return "".join(c for c in name if c.isalnum() or c in ("-", "_")).lower()
