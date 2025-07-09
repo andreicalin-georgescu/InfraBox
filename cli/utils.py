@@ -2,7 +2,7 @@ import os
 import subprocess  # nosec B404
 from pathlib import Path
 
-VALID_ENVIRONMENTS = {"dev"}
+VALID_ENVIRONMENTS = {"dev", "stage"}
 INFRA_ROOT = Path(__file__).resolve().parent.parent
 ENVIRONMENTS_DIR = INFRA_ROOT / "environments"
 
