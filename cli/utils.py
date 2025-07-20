@@ -2,6 +2,7 @@ import os
 import subprocess  # nosec B404
 import sys
 from pathlib import Path
+import re
 
 VALID_ENVIRONMENTS = {"dev", "stage"}
 INFRA_ROOT = Path(__file__).resolve().parent.parent
