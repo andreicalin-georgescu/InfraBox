@@ -1,7 +1,6 @@
 [tool.ruff]
 # Match Black's default line length
 line-length = 88
-fix = true
 
 # Exclude unnecessary or unsafe folders
 exclude = [
