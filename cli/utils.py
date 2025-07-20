@@ -1,6 +1,7 @@
 import os
 import sys
 import subprocess  # nosec B404
+import re
 from pathlib import Path
 
 VALID_ENVIRONMENTS = {"dev", "stage"}
@@ -8,9 +9,19 @@ INFRA_ROOT = Path(__file__).resolve().parent.parent
 ENVIRONMENTS_DIR = INFRA_ROOT / "environments"
 
 
+def sanitize_input(value: str) -> str:
+    """Sanitize CLI input to avoid injection or path traversal."""
+    return re.sub(r"[^\w\-]", "", value.strip())
+
+
 def validate_environment(env, allow_new=False):
     if not allow_new and env not in VALID_ENVIRONMENTS:
         raise ValueError(f"Invalid environment: {env}")
+
+
+def sanitize_env_name(name):
+    """Return a safe environment name (alphanumeric, dashes, underscores)."""
+    return "".join(c for c in name if c.isalnum() or c in ("-", "_")).lower()
 
 
 def get_env_path(env):
@@ -50,6 +61,18 @@ def run_cmd(cmd, cwd, dry_run=False, capture_output=True):
     return result
 
 
+def prompt_input(prompt, default=""):
+    """Ask user for input with a default fallback."""
+    response = input(f"{prompt} [{default}]: ").strip()
+    return response or default
+
+
+def prompt_with_default(prompt_text: str, default: str) -> str:
+    """Prompt user for input, return sanitized string or default."""
+    user_input = input(f"{prompt_text} [default: {default}]: ").strip()
+    return sanitize_input(user_input) if user_input else default
+
+
 def prompt_user_confirmation(message="INFRABOX: Proceed?", default=False):
     """Prompt the user for confirmation with a default option."""
     suffix = "[Y/n]" if default else "[y/N]"
@@ -59,12 +82,28 @@ def prompt_user_confirmation(message="INFRABOX: Proceed?", default=False):
     return answer in ("y", "yes")
 
 
-def prompt_input(prompt, default=""):
-    """Ask user for input with a default fallback."""
-    response = input(f"{prompt} [{default}]: ").strip()
-    return response or default
+def create_provider_symlink(env_path: Path, dry_run=False):
+    """Create a symlink from Shared/provider.tf to the environment directory."""
+    shared_provider_path = ENVIRONMENTS_DIR.parent / "Shared" / "provider.tf"
+    target_symlink_path = env_path / "provider.tf"
 
+    if not shared_provider_path.exists():
+        raise FileNotFoundError(
+            f"Shared provider.tf not found at {shared_provider_path}"
+        )
 
-def sanitize_env_name(name):
-    """Return a safe environment name (alphanumeric, dashes, underscores)."""
-    return "".join(c for c in name if c.isalnum() or c in ("-", "_")).lower()
+    if dry_run:
+        print(
+            f"INFRABOX: 🔍 Dry-run mode: would create symlink: {target_symlink_path} → {shared_provider_path}"
+        )
+        return
+
+    try:
+        target_symlink_path.symlink_to(shared_provider_path)
+        print(
+            f"INFRABOX: 🔗 Created symlink: {target_symlink_path} → {shared_provider_path}"
+        )
+    except FileExistsError:
+        print(f"INFRABOX: ⚠️ Symlink already exists: {target_symlink_path}")
+    except Exception as e:
+        print(f"INFRABOX: ❌ Failed to create symlink: {e}")
