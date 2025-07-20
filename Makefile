@@ -27,8 +27,8 @@ format:
 
 # Run lint checks
 lint:
-	python3 -m ruff check infrabox.py cli/ --show-files --fix
-
+	python3 -m ruff check --fix infrabox.py cli/
+	python3 -m ruff check --show-files infrabox.py cli/
 # Run security scan
 security:
 	python3 -m bandit -r infrabox.py cli/

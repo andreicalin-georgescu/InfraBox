@@ -11,6 +11,9 @@ repos:
     rev: v0.12.2
     hooks:
       - id: ruff
+        name: ruff-fix
+        args: ["check", "--fix"]
+      - id: ruff
         name: ruff-verify
         args: ["check", "--show-files"]
 
