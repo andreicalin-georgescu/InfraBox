@@ -10,8 +10,14 @@ repos:
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.12.2
     hooks:
-      - id: ruff-check
-        args: ["--fix", "--show-files"]
+      - id: ruff
+        name: ruff-fix
+        args: ["check", "--fix", "--show-files"]
+        additional_dependencies: []
+      - id: ruff
+        name: ruff-verify
+        args: ["check", "--show-files"]
+        additional_dependencies: []
 
   - repo: https://github.com/PyCQA/bandit
     rev: 1.7.6
