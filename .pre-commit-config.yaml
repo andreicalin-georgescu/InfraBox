@@ -13,11 +13,10 @@ repos:
       - id: ruff
         name: ruff-fix
         args: ["check", "--fix", "--show-files"]
-        additional_dependencies: []
+        pass_filenames: false
       - id: ruff
         name: ruff-verify
         args: ["check", "--show-files"]
-        additional_dependencies: []
 
   - repo: https://github.com/PyCQA/bandit
     rev: 1.7.6

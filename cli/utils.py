@@ -1,7 +1,7 @@
 import os
 import sys
 import subprocess  # nosec B404
-import re
+import sys
 from pathlib import Path
 
 VALID_ENVIRONMENTS = {"dev", "stage"}

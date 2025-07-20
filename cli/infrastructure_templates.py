@@ -1,6 +1,8 @@
-from jinja2 import Environment, FileSystemLoader
-from cli.utils import INFRA_ROOT, ENVIRONMENTS_DIR
 from pathlib import Path
+
+from jinja2 import Environment, FileSystemLoader
+
+from cli.utils import INFRA_ROOT
 
 TEMPLATES_DIR = INFRA_ROOT / "templates"
 env = Environment(

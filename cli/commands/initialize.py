@@ -1,14 +1,14 @@
-from cli.utils import (
-    ENVIRONMENTS_DIR,
-    sanitize_input,
-    prompt_with_default,
-    create_provider_symlink,
-)
-from cli.terraform_utils import terraform_init, terraform_validate
 from cli.infrastructure_templates import (
     generate_main_tf,
-    generate_variables_tf,
     generate_outputs_tf,
+    generate_variables_tf,
+)
+from cli.terraform_utils import terraform_init, terraform_validate
+from cli.utils import (
+    ENVIRONMENTS_DIR,
+    create_provider_symlink,
+    prompt_with_default,
+    sanitize_input,
 )
 
 
