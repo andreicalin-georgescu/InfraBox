@@ -12,10 +12,10 @@ repos:
     hooks:
       - id: ruff-check
         name: ruff-fix
-        args: ["check", "--fix"]
+        args: ["--fix"]
       - id: ruff-check
         name: ruff-verify
-        args: ["check", "--show-files"]
+        args: ["--show-files"]
 
   - repo: https://github.com/PyCQA/bandit
     rev: 1.7.6
