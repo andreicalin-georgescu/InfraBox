@@ -37,3 +37,7 @@ def generate_variables_tf(env_path: Path, context: dict, dry_run=False):
 
 def generate_outputs_tf(env_path: Path, context: dict, dry_run=False):
     render_template("outputs.tf.j2", context, env_path / "outputs.tf", dry_run)
+
+
+def generate_provider_tf(env_path: Path, context: dict, dry_run: bool = False):
+    render_template("provider.tf.j2", context, env_path / "provider.tf", dry_run)

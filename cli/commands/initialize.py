@@ -3,6 +3,7 @@ import shutil
 from cli.infrastructure_templates import (
     generate_main_tf,
     generate_outputs_tf,
+    generate_provider_tf,
     generate_variables_tf,
 )
 from cli.terraform_utils import terraform_init, terraform_validate
@@ -72,6 +73,7 @@ def run(args):
         generate_variables_tf(env_path, context, dry_run=args.dry_run)
         generate_main_tf(env_path, context, dry_run=args.dry_run)
         generate_outputs_tf(env_path, context, dry_run=args.dry_run)
+        generate_provider_tf(env_path, context, dry_run=args.dry_run)
 
         # Run Terraform initialization & validation
         terraform_init(env_path, dry_run=args.dry_run)
