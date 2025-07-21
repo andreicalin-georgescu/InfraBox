@@ -1,3 +1,4 @@
+import ipaddress
 import os
 import re
 import subprocess  # nosec B404
@@ -7,6 +8,8 @@ from pathlib import Path
 VALID_ENVIRONMENTS = {"dev", "stage"}
 INFRA_ROOT = Path(__file__).resolve().parent.parent
 ENVIRONMENTS_DIR = INFRA_ROOT / "environments"
+DEFAULT_VNET = "10.0.0.0/16"
+DEFAULT_SUBNET = "10.0.1.0/24"
 
 
 def sanitize_input(value: str) -> str:
@@ -14,14 +17,14 @@ def sanitize_input(value: str) -> str:
     return re.sub(r"[^\w\-]", "", value.strip())
 
 
-def validate_environment(env, allow_new=False):
-    if not allow_new and env not in VALID_ENVIRONMENTS:
-        raise ValueError(f"Invalid environment: {env}")
-
-
 def sanitize_env_name(name):
     """Return a safe environment name (alphanumeric, dashes, underscores)."""
     return "".join(c for c in name if c.isalnum() or c in ("-", "_")).lower()
+
+
+def validate_environment(env, allow_new=False):
+    if not allow_new and env not in VALID_ENVIRONMENTS:
+        raise ValueError(f"Invalid environment: {env}")
 
 
 def get_env_path(env):
@@ -37,6 +40,42 @@ def get_env_path(env):
         sys.exit(1)
 
     return env_path
+
+
+def validate_cidr(cidr: str) -> str:
+    """Ensure the given CIDR is valid."""
+    try:
+        return str(ipaddress.IPv4Network(cidr, strict=True))
+    except Exception as e:
+        raise ValueError(f"Invalid CIDR '{cidr}': {e}") from e
+
+
+def check_cidr_overlap(new_cidr: str, current_env: str, environments_dir: Path) -> None:
+    """Check that the new CIDR doesn't overlap with existing ones in other environments."""
+    new_network = ipaddress.IPv4Network(new_cidr, strict=True)
+
+    for env_dir in environments_dir.iterdir():
+        if not env_dir.is_dir() or env_dir.name == current_env:
+            continue
+
+        variables_file = env_dir / "variables.tf"
+        if not variables_file.exists():
+            continue
+
+        content = variables_file.read_text()
+        matches = re.findall(r'["\'](\d+\.\d+\.\d+\.\d+/\d+)["\']', content)
+
+        for match in matches:
+            try:
+                existing_net = ipaddress.IPv4Network(match, strict=True)
+                if new_network.overlaps(existing_net):
+                    raise ValueError(
+                        f"CIDR {new_network} overlaps with {existing_net} in environment '{env_dir.name}'"
+                    )
+            except Exception:
+                raise ValueError(
+                    f"Invalid CIDR '{match}' in environment '{env_dir.name}'"
+                ) from None
 
 
 def run_cmd(cmd, cwd, dry_run=False, capture_output=True):

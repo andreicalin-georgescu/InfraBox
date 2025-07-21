@@ -1,0 +1,1 @@
+/Users/andreicalingeorgescu/Git Repositories/InfraBox/Shared/provider.tf
