@@ -2,3 +2,4 @@ black
 ruff
 bandit
 pre-commit
+jinja2

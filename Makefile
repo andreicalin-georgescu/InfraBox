@@ -19,7 +19,6 @@ help:
 setup:
 	pip3 install --upgrade pip
 	pip3 install -r requirements.txt
-	pip3 install pre-commit
 	python3 -m pre_commit install
 
 # Format code using Black
@@ -28,8 +27,8 @@ format:
 
 # Run lint checks
 lint:
-	python3 -m ruff check infrabox.py cli/ --show-files --fix
-
+	python3 -m ruff check --fix infrabox.py cli/
+	python3 -m ruff check --show-files infrabox.py cli/
 # Run security scan
 security:
 	python3 -m bandit -r infrabox.py cli/
