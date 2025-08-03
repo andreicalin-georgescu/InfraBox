@@ -3,3 +3,7 @@ ruff
 bandit
 pre-commit
 jinja2
+pytest
+pytest-mock
+pytest-cov
+coverage

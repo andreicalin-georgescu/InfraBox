@@ -10,7 +10,6 @@ from cli.terraform_utils import terraform_init, terraform_validate
 from cli.utils import (
     ENVIRONMENTS_DIR,
     check_cidr_overlap,
-    create_provider_symlink,
     prompt_with_default,
     sanitize_input,
     validate_cidr,
@@ -55,7 +54,6 @@ def run(args):
         if not args.dry_run:
             env_path.mkdir(parents=True)
             print(f"INFRABOX: 📁 Created environment directory at {env_path}")
-            create_provider_symlink(env_path, dry_run=args.dry_run)
 
         # Prepare context for rendering templates
         context = {
@@ -86,6 +84,11 @@ def run(args):
             )
     except KeyboardInterrupt:
         print("\nINFRABOX: ⚠️ Initialization interrupted by user.")
+        if not args.dry_run and env_path.exists():
+            shutil.rmtree(env_path)
+            print(
+                f"INFRABOX: 🧹 Removed environment directory {env_path} due to error."
+            )
     except Exception as e:
         print(f"INFRABOX: ❌ Unexpected error: {e}")
         if not args.dry_run and env_path.exists():

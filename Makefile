@@ -21,20 +21,32 @@ setup:
 	pip3 install -r requirements.txt
 	python3 -m pre_commit install
 
+# Run unit and integration tests
+test:
+	python3 -m pytest tests/unit
+	python3 -m pytest tests/integration
+
+# Run coverage reports
+coverage:
+	python3 -m pytest --cov=cli --cov-report=term-missing --cov-report=html tests/
+
 # Format code using Black
 format:
-	python3 -m black infrabox.py cli/
+	python3 -m black infrabox.py cli/ tests/
 
 # Run lint checks
 lint:
-	python3 -m ruff check --fix infrabox.py cli/
-	python3 -m ruff check --show-files infrabox.py cli/
+	python3 -m ruff check --fix infrabox.py cli/ tests/
+	python3 -m ruff check --show-files infrabox.py cli/ tests/
+
 # Run security scan
 security:
 	python3 -m bandit -r infrabox.py cli/
+	python3 -m bandit -r tests/ -s B101
 
 # Run full check
-check: format lint security
+check: format lint security test coverage
+	@echo "All checks passed successfully!"
 
 # Run all pre-commit hooks against the entire codebase
 pre-commit-all:

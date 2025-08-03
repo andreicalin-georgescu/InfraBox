@@ -51,7 +51,9 @@ def validate_cidr(cidr: str) -> str:
 
 
 def check_cidr_overlap(new_cidr: str, current_env: str, environments_dir: Path) -> None:
-    """Check that the new CIDR doesn't overlap with existing ones in other environments."""
+    print(
+        f"INFRABOX: Checking overlap for new_cidr={new_cidr}, current_env={current_env}, environments_dir={environments_dir}"
+    )
     new_network = ipaddress.IPv4Network(new_cidr, strict=True)
 
     for env_dir in environments_dir.iterdir():
@@ -63,19 +65,17 @@ def check_cidr_overlap(new_cidr: str, current_env: str, environments_dir: Path) 
             continue
 
         content = variables_file.read_text()
-        matches = re.findall(r'["\'](\d+\.\d+\.\d+\.\d+/\d+)["\']', content)
+        matches = re.findall(r'vnet_cidr\s*=\s*["\']([^"\']+)["\']', content)
 
         for match in matches:
-            try:
-                existing_net = ipaddress.IPv4Network(match, strict=True)
-                if new_network.overlaps(existing_net):
-                    raise ValueError(
-                        f"CIDR {new_network} overlaps with {existing_net} in environment '{env_dir.name}'"
-                    )
-            except Exception:
+            existing_net = ipaddress.IPv4Network(match, strict=True)
+            if new_network.overlaps(existing_net):
+                print(
+                    f"INFRABOX: Overlap found: {new_network} overlaps {existing_net} in {env_dir.name}"
+                )
                 raise ValueError(
-                    f"Invalid CIDR '{match}' in environment '{env_dir.name}'"
-                ) from None
+                    f"CIDR {new_network} overlaps with {existing_net} in environment '{env_dir.name}'"
+                )
 
 
 def run_cmd(cmd, cwd, dry_run=False, capture_output=True):
@@ -119,30 +119,3 @@ def prompt_user_confirmation(message="INFRABOX: Proceed?", default=False):
     if not answer:
         return default
     return answer in ("y", "yes")
-
-
-def create_provider_symlink(env_path: Path, dry_run=False):
-    """Create a symlink from Shared/provider.tf to the environment directory."""
-    shared_provider_path = ENVIRONMENTS_DIR.parent / "Shared" / "provider.tf"
-    target_symlink_path = env_path / "provider.tf"
-
-    if not shared_provider_path.exists():
-        raise FileNotFoundError(
-            f"Shared provider.tf not found at {shared_provider_path}"
-        )
-
-    if dry_run:
-        print(
-            f"INFRABOX: 🔍 Dry-run mode: would create symlink: {target_symlink_path} → {shared_provider_path}"
-        )
-        return
-
-    try:
-        target_symlink_path.symlink_to(shared_provider_path)
-        print(
-            f"INFRABOX: 🔗 Created symlink: {target_symlink_path} → {shared_provider_path}"
-        )
-    except FileExistsError:
-        print(f"INFRABOX: ⚠️ Symlink already exists: {target_symlink_path}")
-    except Exception as e:
-        print(f"INFRABOX: ❌ Failed to create symlink: {e}")

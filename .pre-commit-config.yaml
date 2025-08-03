@@ -21,4 +21,12 @@ repos:
     rev: 1.7.6
     hooks:
       - id: bandit
+        name: bandit-main
         args: ["-r", "cli", "InfraBox.py"]
+        files: ^(cli/|InfraBox\.py)
+        pass_filenames: false
+      - id: bandit
+        name: bandit-tests
+        args: ["-r", "tests", "-s", "B101"]
+        files: ^tests/
+        pass_filenames: false
