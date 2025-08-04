@@ -62,10 +62,9 @@ jobs:
 
       - name: ⚙️ Run CLI help command
         run: python infrabox.py --help
+      
+      - name: 📋 Run unit tests
+        run: pytest tests/unit
 
-      - name: 🧪 Dry-run example
-        run: python infrabox.py create dev --dry-run
-
-      - name: ❌ Invalid env test (should fail safely)
-        run: |
-          python infrabox.py create ../../evil --dry-run || echo "Handled invalid input safely"
+      - name: 🧪 Run integration tests
+        run: pytest tests/integration

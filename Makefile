@@ -11,6 +11,8 @@ help:
 	@echo "format          Format code using Black"
 	@echo "lint            Run static code analysis using Ruff"
 	@echo "security        Scan for security issues using Bandit"
+	@echo "test            Run unit and integration tests using pytest"
+	@echo "coverage        Generate coverage reports for the CLI"
 	@echo "check           Run format, lint, and security checks (all-in-one)"
 	@echo "pre-commit-all  Run all configured pre-commit hooks across the codebase"
 	@echo ""
@@ -20,15 +22,6 @@ setup:
 	pip3 install --upgrade pip
 	pip3 install -r requirements.txt
 	python3 -m pre_commit install
-
-# Run unit and integration tests
-test:
-	python3 -m pytest tests/unit
-	python3 -m pytest tests/integration
-
-# Run coverage reports
-coverage:
-	python3 -m pytest --cov=cli --cov-report=term-missing --cov-report=html tests/
 
 # Format code using Black
 format:
@@ -43,6 +36,15 @@ lint:
 security:
 	python3 -m bandit -r infrabox.py cli/
 	python3 -m bandit -r tests/ -s B101
+
+# Run unit and integration tests
+test:
+	python3 -m pytest tests/unit
+	python3 -m pytest tests/integration
+
+# Run coverage reports
+coverage:
+	python3 -m pytest --cov=cli --cov-report=term-missing --cov-report=html tests/
 
 # Run full check
 check: format lint security test coverage
