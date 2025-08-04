@@ -33,18 +33,17 @@ InfraBox/
 │   ├── storage_account/
 │   └── resource_group/
 │
-├── shared/
-│   └── provider.tf           # Common provider configuration
-│
 ├── cli/                      # Python CLI wrapper logic
 │   ├── __init__.py
 │   ├── parser.py             # Argument parser
 │   ├── utils.py              # Secure command runner, path validation
+│   ├── infrstructure_templates.py # Wrapper for generating the required tf files for an environment
 │   ├── terraform_utils.py    # Terraform-specific wrappers
 │   └── commands/
 │       ├── __init__.py
 │       ├── create.py         # Implements 'create' command
-│       └── destroy.py        # Implements 'destroy' command
+│       ├── destroy.py        # Implements 'destroy' command
+│       └── initialize.py     # Implements 'initialize' command
 │
 ├── InfraBox.py               # Entry point for the CLI
 ├── .github/

@@ -37,12 +37,12 @@ def test_validate_environment_valid():
 
 def test_validate_environment_invalid():
     with pytest.raises(ValueError):
-        utils.validate_environment("prod")
+        utils.validate_environment("invalid")
 
 
 def test_validate_environment_allow_new():
     # Should not raise
-    utils.validate_environment("prod", allow_new=True)
+    utils.validate_environment("UserAcceptance", allow_new=True)
 
 
 def test_get_env_path_exists(tmp_path, monkeypatch):

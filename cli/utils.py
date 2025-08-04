@@ -5,7 +5,7 @@ import subprocess  # nosec B404
 import sys
 from pathlib import Path
 
-VALID_ENVIRONMENTS = {"dev", "stage"}
+VALID_ENVIRONMENTS = {"dev", "stage", "prod"}
 INFRA_ROOT = Path(__file__).resolve().parent.parent
 ENVIRONMENTS_DIR = INFRA_ROOT / "environments"
 DEFAULT_VNET = "10.0.0.0/16"

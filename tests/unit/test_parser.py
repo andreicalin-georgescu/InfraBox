@@ -53,8 +53,8 @@ def test_parse_arguments_valid(monkeypatch, argv, expected):
         (["prog"], "the following arguments are required: command"),
         (["prog", "create"], "the following arguments are required: environment"),
         (["prog", "destroy"], "the following arguments are required: environment"),
-        (["prog", "create", "prod"], "invalid choice: 'prod'"),
-        (["prog", "destroy", "prod"], "invalid choice: 'prod'"),
+        (["prog", "create", "bar"], "invalid choice: 'bar'"),
+        (["prog", "destroy", "pseudo"], "invalid choice: 'pseudo'"),
         (["prog", "initialize", "foo"], "invalid choice: 'foo'"),
     ],
 )

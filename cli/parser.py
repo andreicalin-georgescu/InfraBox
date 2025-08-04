@@ -12,14 +12,14 @@ def parse_arguments():
     # Create
     create_parser = subparsers.add_parser("create", help="Create an environment")
     create_parser.add_argument(
-        "environment", choices=["dev", "stage"], help="Target environment"
+        "environment", choices=["dev", "stage", "prod"], help="Target environment"
     )
     create_parser.add_argument("--dry-run", action="store_true", help="Dry run only")
 
     # Destroy
     destroy_parser = subparsers.add_parser("destroy", help="Destroy an environment")
     destroy_parser.add_argument(
-        "environment", choices=["dev", "stage"], help="Target environment"
+        "environment", choices=["dev", "stage", "prod"], help="Target environment"
     )
     destroy_parser.add_argument("--dry-run", action="store_true", help="Dry run only")
 
