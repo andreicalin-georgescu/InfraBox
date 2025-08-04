@@ -1,3 +1,5 @@
+name: 🐍 Python CLI Lint, Smoke and Security Tests
+
 on:
   pull_request:
     branches: [main]
@@ -60,10 +62,9 @@ jobs:
 
       - name: ⚙️ Run CLI help command
         run: python infrabox.py --help
+      
+      - name: 📋 Run unit tests
+        run: PYTHONPATH=. pytest tests/unit
 
-      - name: 🧪 Dry-run example
-        run: python infrabox.py create dev --dry-run
-
-      - name: ❌ Invalid env test (should fail safely)
-        run: |
-          python infrabox.py create ../../evil --dry-run || echo "Handled invalid input safely"
+      - name: 🧪 Run integration tests
+        run: PYTHONPATH=. pytest tests/integration

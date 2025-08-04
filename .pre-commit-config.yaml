@@ -11,10 +11,22 @@ repos:
     rev: v0.12.2
     hooks:
       - id: ruff-check
-        args: ["--fix", "--show-files"]
+        name: ruff-fix
+        args: ["--fix"]
+      - id: ruff-check
+        name: ruff-verify
+        args: ["--show-files"]
 
   - repo: https://github.com/PyCQA/bandit
     rev: 1.7.6
     hooks:
       - id: bandit
+        name: bandit-main
         args: ["-r", "cli", "InfraBox.py"]
+        files: ^(cli/|InfraBox\.py)
+        pass_filenames: false
+      - id: bandit
+        name: bandit-tests
+        args: ["-r", "tests", "-s", "B101"]
+        files: ^tests/
+        pass_filenames: false

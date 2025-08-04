@@ -13,7 +13,7 @@
 - 🔐 Strong DevSecOps and input validation principles
 - ⚙️ CLI wrapper for simplified provisioning and teardown
 - 🧪 Integrated with GitHub Actions for linting, validation and security scanning
-- 🧰 Support for multiple environments (e.g., `dev`, `test`, `prod`)
+- 🧰 Support for multiple environments (e.g., `dev`, `stage`, `prod`)
 
 ## 📁 Project Structure
 
@@ -33,18 +33,17 @@ InfraBox/
 │   ├── storage_account/
 │   └── resource_group/
 │
-├── shared/
-│   └── provider.tf           # Common provider configuration
-│
 ├── cli/                      # Python CLI wrapper logic
 │   ├── __init__.py
 │   ├── parser.py             # Argument parser
 │   ├── utils.py              # Secure command runner, path validation
+│   ├── infrstructure_templates.py # Wrapper for generating the required tf files for an environment
 │   ├── terraform_utils.py    # Terraform-specific wrappers
 │   └── commands/
 │       ├── __init__.py
 │       ├── create.py         # Implements 'create' command
-│       └── destroy.py        # Implements 'destroy' command
+│       ├── destroy.py        # Implements 'destroy' command
+│       └── initialize.py     # Implements 'initialize' command
 │
 ├── InfraBox.py               # Entry point for the CLI
 ├── .github/
@@ -62,7 +61,7 @@ InfraBox/
 
 Currently, InfraBox provisions the following in Azure:
 
-- Resource Group: `InfraBox-Dev-RG`
+- Resource Group: `InfraBox-dev-RG`
 - Virtual Network and Subnet
 - Network Interface
 - Static Public IP
@@ -73,7 +72,7 @@ Currently, InfraBox provisions the following in Azure:
 
 InfraBox-\<Environment\>-\<ResourceType\>
 
-Example: `InfraBox-Dev-VM`, `InfraBox-Dev-PublicIP`, etc.  
+Example: `InfraBox-dev-VM`, `InfraBox-dev-PublicIP`, etc.  
 This allows for easy scaling across environments like *Test*, *Stage*, and *Prod*.
 
 ## ⚙️ Getting Started
@@ -120,7 +119,7 @@ Add the following to a file called `terraform.tfvars` (*already added to .gitign
 ```hcl
 ssh_public_key_path = "~/.ssh/infrabox_key.pub"
 dns_zone_name       = "example.com"
-resource_group_name = "InfraBox-Dev-RG"
+resource_group_name = "InfraBox-dev-RG"
 ```
 Infrabox can be used with native terraform from each of the `environments/` sub-directory, or by using the InfraBox CLI wrapper.
 
@@ -133,11 +132,22 @@ make setup           # Setup pre-commit and install dependencies
 make lint            # Run ruff for linting
 make format          # Auto-format Python files with black
 make security        # Run security analysis (bandit)
+make test            # Run unit and integration
+make coverage        # Run test code coverage
 ```
 
 ### 🧑‍💻 Using the CLI
 
 InfraBox comes with a secure, extensible Python CLI that abstracts Terraform commands.
+
+#### 🧳 Initialize an environment
+``` bash
+python3 InfraBox.py initialize dev
+```
+
+- This will create `main.tf`, `variables.tf`, `outputs.tf` and `provider.tf` for the selected environment, under the `environments/dev` folder
+- It will ask for user input for every step of the setup process
+- For CIDR subnets, it will automatically check for overlap against other CIDRs in the environments folder
 
 #### 🔨 Create an environment
 ``` bash
@@ -182,6 +192,8 @@ InfraBox includes CI workflows for:
 - ✅ Uses `black` auto-formatting for consistent standards in pre-commit and CI
 - ✅ Uses `ruff` linting for optimized code quality checks in pre-commit and CI
 - ✅ Uses `bandit` static analysis for security analysis in pre-commit and CI
+- ✅ Uses `pytest` testing framework for unit and integration testing in CI
+- ✅ Uses `pytest-cov` coverage analysis for generating test coverage reports locally in HTML format
 
 ### 📌 DevSecOps Best Practices Followed
 
@@ -200,27 +212,11 @@ To maintain a clean and secure codebase, InfraBox uses *pre-commit* to enforce s
 - ruff: Linting and formatting consistency
 - bandit: Checks for Python security risks
 
-#### 🔧 Setup
-Install pre-commit if you haven't already:
-```bash
-pip3 install pre-commit
-```
-Enable hooks:
-```bash
-pre-commit install
-```
-
-Run manually (optional):
-```bash
-pre-commit run --all-files
-```
-
 ### 📝 Notes on Coding Best Practices Reflected:
 
 - Modules are **resource-type scoped**, keeping them reusable and scalable.
 - environments/ uses a clear separation per environment (dev, test, etc.).
-- A single provider.tf is shared via safe reuse strategies (symlink from shared into environment/ directories or duplicated in root for consistency).
-- DRY and clarity are balanced — each folder does one thing well.
+- DRY and clarity are balanced - each folder does one thing well.
 
 ### 🔄 Roadmap
 

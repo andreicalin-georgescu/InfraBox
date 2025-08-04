@@ -4,10 +4,15 @@ crash.log
 # Python cache files
 __pycache__/
 *.py[cod]
+*.pytest_cache/
 
 # Virtual environment directories
 venv/
 .env
+
+# Coverage reports
+.coverage
+htmlcov/
 
 # Ruff cache
 .ruff_cache/
