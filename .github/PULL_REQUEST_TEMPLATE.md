@@ -12,7 +12,8 @@ Closes #...
 ## ✅ Checklist
 
 - [ ] My code follows the InfraBox naming conventions and structure
-- [ ] I have run `make check` locally to validate formatting, linting, and security
+- [ ] I have added relevant unit tests for any newly introduced code
+- [ ] I have run `make check` locally to validate formatting, linting, security and tests
 - [ ] My change does not introduce any secrets or sensitive data
 - [ ] I have tested this change with appropriate commands (e.g. `python InfraBox.py create dev --dry-run`)
 - [ ] I have added or updated relevant documentation, if necessary
