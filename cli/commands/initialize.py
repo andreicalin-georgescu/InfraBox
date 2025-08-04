@@ -17,7 +17,7 @@ from cli.utils import (
 
 
 def run(args):
-    environment = sanitize_input(args.environment.capitalize())
+    environment = sanitize_input(args.environment.lower())
     env_path = ENVIRONMENTS_DIR / environment
 
     if env_path.exists():
