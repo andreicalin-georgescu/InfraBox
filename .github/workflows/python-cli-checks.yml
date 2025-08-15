@@ -1,5 +1,4 @@
 name: 🐍 Python CLI Lint, Smoke and Security Tests
-description: Run linting, security checks, and smoke tests for InfraBox CLI
 
 on:
   pull_request:
