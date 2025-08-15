@@ -1,4 +1,5 @@
 name: 🌍 Terraform Lint, Format and Validate
+description: Run Terraform static analysis, linting, and security checks
 
 on:
   pull_request:
