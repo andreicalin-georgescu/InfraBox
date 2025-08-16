@@ -1,5 +1,6 @@
 # 🚀 InfraBox - DevOps Infrastructure Bootstrapper
 
+[![Latest Release](https://img.shields.io/github/v/release/andreicalin-georgescu/InfraBox?include_prereleases&label=latest-release)](https://github.com/andreicalin-georgescu/InfraBox/releases)
 ![GitHub Workflow Status](https://github.com/andreicalin-georgescu/InfraBox/actions/workflows/python-cli-checks.yml/badge.svg)
 ![Terraform Validate](https://github.com/andreicalin-georgescu/InfraBox/actions/workflows/terraform-checks.yml/badge.svg)
 ![License](https://img.shields.io/github/license/andreicalin-georgescu/InfraBox)

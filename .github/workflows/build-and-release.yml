@@ -1,0 +1,391 @@
+name: 📦 Build Package and Create Release 
+
+on:
+  pull_request:
+    types: [closed]
+    branches:
+      - main
+
+permissions:
+  contents: write
+  pull-requests: read
+  discussions: write
+
+jobs:
+  tag-and-build:
+    if: github.event.pull_request.merged == true && (contains(github.event.pull_request.labels.*.name, 'release:patch') || contains(github.event.pull_request.labels.*.name, 'release:minor') || contains(github.event.pull_request.labels.*.name, 'release:major'))
+    runs-on: ubuntu-latest
+    outputs:
+      new_tag: ${{ steps.create_tag.outputs.new_tag }}
+      release_type: ${{ steps.determine_release.outputs.release_type }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Determine release type
+        id: determine_release
+        run: |
+          if [[ ${{ contains(github.event.pull_request.labels.*.name, 'release:patch') }} == true ]]; then
+            echo "release_type=patch" >> $GITHUB_OUTPUT
+          elif [[ ${{ contains(github.event.pull_request.labels.*.name, 'release:minor') }} == true ]]; then
+            echo "release_type=minor" >> $GITHUB_OUTPUT
+          elif [[ ${{ contains(github.event.pull_request.labels.*.name, 'release:major') }} == true ]]; then
+            echo "release_type=major" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Get latest tag
+        id: get_latest_tag
+        run: |
+          git fetch --tags
+          LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
+          echo "latest_tag=${LATEST_TAG}" >> $GITHUB_OUTPUT
+          
+          # Parse version components
+          if [[ $LATEST_TAG =~ v([0-9]+)\.([0-9]+)\.([0-9]+) ]]; then
+            MAJOR="${BASH_REMATCH[1]}"
+            MINOR="${BASH_REMATCH[2]}"
+            PATCH="${BASH_REMATCH[3]}"
+            echo "major=$MAJOR" >> $GITHUB_OUTPUT
+            echo "minor=$MINOR" >> $GITHUB_OUTPUT
+            echo "patch=$PATCH" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create new tag based on release type
+        id: create_tag
+        run: |
+          MAJOR=${{ steps.get_latest_tag.outputs.major }}
+          MINOR=${{ steps.get_latest_tag.outputs.minor }}
+          PATCH=${{ steps.get_latest_tag.outputs.patch }}
+          
+          if [[ "${{ steps.determine_release.outputs.release_type }}" == "major" ]]; then
+            NEW_TAG="v$((MAJOR + 1)).0.0"
+          elif [[ "${{ steps.determine_release.outputs.release_type }}" == "minor" ]]; then
+            NEW_TAG="v${MAJOR}.$((MINOR + 1)).0"
+          else
+            NEW_TAG="v${MAJOR}.${MINOR}.$((PATCH + 1))"
+          fi
+          
+          echo "new_tag=${NEW_TAG}" >> $GITHUB_OUTPUT
+          
+          # Get PR author information and PR title
+          PR_AUTHOR_NAME="${{ github.event.pull_request.user.name }}"
+          PR_AUTHOR_EMAIL="${{ github.event.pull_request.user.login }}@users.noreply.github.com"
+          PR_TITLE="${{ github.event.pull_request.title }}"
+          
+          # If PR author name is not available, use login
+          if [ -z "$PR_AUTHOR_NAME" ]; then
+            PR_AUTHOR_NAME="${{ github.event.pull_request.user.login }}"
+          fi
+          
+          git config --local user.email "$PR_AUTHOR_EMAIL"
+          git config --local user.name "$PR_AUTHOR_NAME"
+          git tag -a ${NEW_TAG} -m "Release ${NEW_TAG}: ${PR_TITLE}"
+          git push origin ${NEW_TAG}
+
+      - name: Create artifact
+        run: |
+          # Exclude files not needed in release
+          mkdir -p release_content
+          rsync -av --exclude='.git*' \
+                    --exclude='CODE_OF_CONDUCT.md' \
+                    --exclude='CONTRIBUTING.md' \
+                    --exclude='SECURITY.md' \
+                    --exclude='.gitignore' \
+                    --exclude='.gitattributes' \
+                    --exclude='.github' \
+                    --exclude='release_content' \
+                    ./ release_content/
+
+      - name: Create ZIP archive
+        run: |
+          cd release_content
+          zip -r ../InfraBox-${{ steps.create_tag.outputs.new_tag }}.zip .
+      
+      - name: Create tarball
+        run: |
+          cd release_content
+          tar -czf ../InfraBox-${{ steps.create_tag.outputs.new_tag }}.tar.gz .
+     
+      - name: Upload ZIP artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: InfraBox-${{ steps.create_tag.outputs.new_tag }}.zip
+          path: InfraBox-${{ steps.create_tag.outputs.new_tag }}.zip
+          retention-days: 1
+
+      - name: Upload tarball artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: InfraBox-${{ steps.create_tag.outputs.new_tag }}.tar.gz
+          path: InfraBox-${{ steps.create_tag.outputs.new_tag }}.tar.gz
+          retention-days: 1
+
+      - name: Save release metadata
+        run: |
+          mkdir -p release_metadata
+          echo "${{ steps.create_tag.outputs.new_tag }}" > release_metadata/tag.txt
+          echo "${{ steps.determine_release.outputs.release_type }}" > release_metadata/type.txt
+      
+      - name: Upload release metadata
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-metadata
+          path: release_metadata/
+          retention-days: 1
+
+  create-release:
+    needs: tag-and-build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download release metadata
+        uses: actions/download-artifact@v4
+        with:
+          name: release-metadata
+          path: release_metadata
+
+      - name: Set environment variables
+        run: |
+          echo "NEW_TAG=$(cat release_metadata/tag.txt)" >> $GITHUB_ENV
+          echo "RELEASE_TYPE=$(cat release_metadata/type.txt)" >> $GITHUB_ENV
+      
+      - name: Download ZIP artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: InfraBox-${{ needs.tag-and-build.outputs.new_tag }}.zip
+
+      - name: Download tarball artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: InfraBox-${{ needs.tag-and-build.outputs.new_tag }}.tar.gz
+
+      - name: Create GitHub Release
+        id: create_release
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const tag = '${{ needs.tag-and-build.outputs.new_tag }}';
+            const releaseTitle = `Release ${tag}`;
+            const fs = require('fs');
+            
+            try {
+              const release = await github.rest.repos.createRelease({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                tag_name: tag,
+                name: releaseTitle,
+                draft: false,
+                generate_release_notes: true
+              });
+              // Write release info to file for next job
+              fs.writeFileSync('release_id.txt', release.data.id.toString());
+              fs.writeFileSync('release_notes.txt', release.data.body || '');
+              
+              // Upload ZIP file
+              const zipFilePath = `InfraBox-${tag}.zip`;
+              const zipFileContent = fs.readFileSync(zipFilePath);
+              
+              await github.rest.repos.uploadReleaseAsset({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                release_id: release.data.id,
+                name: zipFilePath,
+                data: zipFileContent
+              });
+              
+              // Upload tarball
+              const tarFilePath = `InfraBox-${tag}.tar.gz`;
+              const tarFileContent = fs.readFileSync(tarFilePath);
+              
+              await github.rest.repos.uploadReleaseAsset({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                release_id: release.data.id,
+                name: tarFilePath,
+                data: tarFileContent
+              });
+              
+              console.log(`Created draft release ${releaseTitle} with assets`);
+              
+              return {
+                release_id: release.data.id,
+                release_notes: release.data.body || 'No release notes available.'
+              };
+            } catch (error) {
+              throw new Error(`Release creation failed: ${error.message}`);
+            }
+          result-encoding: json
+      
+      - name: Upload release info
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-info
+          path: |
+            release_id.txt
+            release_notes.txt
+          retention-days: 1
+
+  publish-discussion-post:
+      needs: [tag-and-build, create-release]
+      runs-on: ubuntu-latest
+      steps:
+        - name: Download release metadata
+          uses: actions/download-artifact@v4
+          with:
+            name: release-metadata
+            path: release_metadata
+
+        - name: Download release info
+          uses: actions/download-artifact@v4
+          with:
+            name: release-info
+            path: release_info
+
+        - name: Set environment variables
+          run: |
+            echo "NEW_TAG=$(cat release_metadata/tag.txt)" >> $GITHUB_ENV
+            echo "RELEASE_TYPE=$(cat release_metadata/type.txt)" >> $GITHUB_ENV
+            
+        - name: Create New Discussion Post
+          uses: actions/github-script@v6
+          with:
+            github-token: ${{ secrets.GITHUB_TOKEN }}
+            script: |
+              const fs = require('fs');
+              const tag = process.env.NEW_TAG;
+              const releaseType = process.env.RELEASE_TYPE;
+              const owner = context.repo.owner;
+              const repo = context.repo.repo;
+              const discussionTitle = `Fresh new InfraBox Release: ${tag}!`;
+              const releaseNotes = fs.readFileSync('release_info/release_notes.txt', 'utf8');
+
+              // 1. Get repository ID, discussion categories, and labels via GraphQL
+              const repoQuery = `
+                query($owner: String!, $repo: String!) {
+                  repository(owner: $owner, name: $repo) {
+                    id
+                    discussionCategories(first: 20) {
+                      nodes {
+                        id
+                        name
+                      }
+                    }
+                    labels(first: 20) {
+                      nodes {
+                        id
+                        name
+                      }
+                    }
+                  }
+                }
+              `;
+              const repoResp = await github.graphql(repoQuery, { owner, repo });
+              const repository = repoResp.repository;
+              if (!repository) {
+                throw new Error('Could not retrieve repository information.');
+                return;
+              }
+              const categories = repository.discussionCategories.nodes;
+              if (!categories || categories.length === 0) {
+                throw new Error('No discussion categories found. Discussions might be disabled.');
+                return;
+              }
+
+              // 2. Find 'Announcements' category or fallback
+              let category = categories.find(c => c.name.replace(/[^\w\s]/gi, '').trim().toLowerCase().includes('announcements'));
+              if (!category) {
+                category = categories[0];
+                console.log(`Could not find any category containing 'Announcements', using '${category.name}' instead.`);
+              }
+
+              // 3. Prepare discussion body
+              const discussionBody = `
+              # InfraBox ${tag} has been released! 🚀
+
+              We're excited to announce the release of InfraBox ${tag}. This is a ${releaseType} release.
+
+              ${releaseNotes}
+
+              ## Try It Now!
+
+              You can download the new version from the [GitHub Release page](https://github.com/${owner}/${repo}/releases/tag/${tag}).
+
+              ---
+
+              Thank you for your continuous support and for using InfraBox!
+              If you have any questions or feedback, feel free to open a discussion or issue.
+              
+              --this post has been automatically generated by the InfraBox release workflow--
+              `;
+
+              // 4. Create the discussion via GraphQL mutation
+              const createDiscussionMutation = `
+                mutation($repoId: ID!, $catId: ID!, $title: String!, $body: String!) {
+                  createDiscussion(input: {
+                    repositoryId: $repoId,
+                    categoryId: $catId,
+                    title: $title,
+                    body: $body
+                  }) {
+                    discussion {
+                      id
+                      url
+                    }
+                  }
+                }
+              `;
+              let discussionId, discussionUrl;
+              try {
+                const createResp = await github.graphql(createDiscussionMutation, {
+                  repoId: repository.id,
+                  catId: category.id,
+                  title: discussionTitle,
+                  body: discussionBody
+                });
+                discussionId = createResp.createDiscussion.discussion.id;
+                discussionUrl = createResp.createDiscussion.discussion.url;
+                console.log(`Discussion post created: ${discussionUrl}`);
+              } catch (error) {
+                throw new Error(`Failed to create discussion post: ${error.message}`);
+                return;
+              }
+
+              // 5. Determine which label to add
+              let labelName = null;
+              if (releaseType === 'patch') labelName = 'release:patch';
+              else if (releaseType === 'minor') labelName = 'release:minor';
+              else if (releaseType === 'major') labelName = 'release:major';
+
+              if (labelName) {
+                // 6. Find label node ID
+                const labelNode = repository.labels.nodes.find(l => l.name === labelName);
+                if (!labelNode) {
+                  console.log(`Label '${labelName}' not found in repository. Skipping label assignment.`);
+                } else {
+                  // 7. Add label to the discussion
+                  const addLabelMutation = `
+                    mutation($labelableId: ID!, $labelIds: [ID!]!) {
+                      addLabelsToLabelable(input: {labelableId: $labelableId, labelIds: $labelIds}) {
+                        labelable {
+                          ... on Discussion {
+                            id
+                            labels(first: 10) { nodes { name } }
+                          }
+                        }
+                      }
+                    }
+                  `;
+                  try {
+                    await github.graphql(addLabelMutation, {
+                      labelableId: discussionId,
+                      labelIds: [labelNode.id]
+                    });
+                    console.log(`Label '${labelName}' added to discussion.`);
+                  } catch (error) {
+                    console.log(`Failed to add label to discussion: ${error.message}`);
+                  }
+                }
+              }
